@@ -28,15 +28,15 @@
         <p>Clear decisions: <strong>Buy / Hold / Avoid</strong> plus sell alerts for your open positions.</p>
       </div>
       <div class="api-box">
-        <label>Quiver API Key</label>
-        <input id="apiKey" type="password" placeholder="Stored locally for now" />
+        <label>Quiver API Key (browser local storage)</label>
+        <input id="apiKey" type="password" placeholder="Paste key for live congress data" />
         <button class="btn primary" id="saveKey">Save Key</button>
       </div>
     </section>
 
     <section class="grid">
       <article class="card signal-card">
-        <h3>Signal</h3>
+        <h3 id="signalTitle">Signal — AAPL</h3>
         <div id="signalPill" class="pill buy">BUY</div>
         <p id="signalText">Momentum + insider trend score is strong. Risk remains moderate.</p>
         <div class="stats">
@@ -48,7 +48,7 @@
 
       <article class="card">
         <h3>Quick Backtest</h3>
-        <p>If you purchased <strong id="ticker">NVDA</strong> 7 days ago:</p>
+        <p>If you purchased <strong id="ticker">AAPL</strong> 7 days ago:</p>
         <div class="return-row"><span>Return</span><strong id="returnValue" class="up">+6.42%</strong></div>
         <p class="muted" id="backtestCopy">$1,000 → $1,064.20</p>
       </article>
@@ -83,7 +83,19 @@
         <input id="posQty" type="number" step="1" placeholder="Qty (optional)" />
         <button id="addPositionBtn" class="btn primary">Add Position</button>
       </div>
+      <div class="position-actions">
+        <button id="exportCsvBtn" class="btn">Export CSV</button>
+      </div>
       <div id="positionsTable"></div>
+    </section>
+
+    <section class="card">
+      <div class="chart-head">
+        <h3>Recent Trades — U.S. Congress</h3>
+        <button id="refreshTradesBtn" class="btn">Refresh Trades</button>
+      </div>
+      <p class="muted" id="tradesMeta">Shows recent disclosures. Filtered by scanned ticker when possible.</p>
+      <div id="tradesTable"></div>
     </section>
   </main>
 

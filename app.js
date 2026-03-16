@@ -2,6 +2,7 @@ const ctx = document.getElementById('priceChart');
 const symbolInput = document.getElementById('symbolInput');
 const analyzeBtn = document.getElementById('analyzeBtn');
 const ticker = document.getElementById('ticker');
+const signalTitle = document.getElementById('signalTitle');
 const signalPill = document.getElementById('signalPill');
 const signalText = document.getElementById('signalText');
 const returnValue = document.getElementById('returnValue');
@@ -11,6 +12,8 @@ const horizon = document.getElementById('horizon');
 const backtestCopy = document.getElementById('backtestCopy');
 const alertBanner = document.getElementById('alertBanner');
 const positionsTable = document.getElementById('positionsTable');
+const tradesTable = document.getElementById('tradesTable');
+const tradesMeta = document.getElementById('tradesMeta');
 
 const WATCHLIST = ['AAPL','MSFT','NVDA','TSLA','AMZN','META','GOOGL'];
 
@@ -28,6 +31,7 @@ function generateSeries(days = 60, start = 100) {
 
 let series = generateSeries(90, 120);
 let latestPrices = Object.fromEntries(WATCHLIST.map(t => [t, Number((80 + Math.random() * 180).toFixed(2))]));
+let currentSymbol = 'AAPL';
 
 const chart = new Chart(ctx, {
   type: 'line',
@@ -72,6 +76,35 @@ function evaluatePosition(p) {
   return { ...p, current, pnlPct, action, reason };
 }
 
+function deletePosition(index) {
+  const positions = getPositions();
+  positions.splice(index, 1);
+  savePositions(positions);
+  renderPositions();
+}
+
+function exportCsv() {
+  const rows = getPositions().map(evaluatePosition);
+  if (!rows.length) return;
+  const header = ['ticker','entryPrice','qty','current','pnlPct','action','reason'];
+  const lines = [header.join(',')].concat(rows.map(r => [
+    r.ticker,
+    r.entryPrice,
+    r.qty || '',
+    r.current.toFixed(2),
+    r.pnlPct.toFixed(2),
+    r.action,
+    `"${r.reason.replace(/"/g, '""')}"`
+  ].join(',')));
+  const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `quantpulse-positions-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 function renderPositions() {
   const rows = getPositions().map(evaluatePosition);
   const urgent = rows.find(r => r.action === 'SELL');
@@ -90,9 +123,9 @@ function renderPositions() {
 
   positionsTable.innerHTML = `
     <table class="table">
-      <thead><tr><th>Ticker</th><th>Entry</th><th>Current</th><th>P/L %</th><th>Action</th><th>Reason</th></tr></thead>
+      <thead><tr><th>Ticker</th><th>Entry</th><th>Current</th><th>P/L %</th><th>Action</th><th>Reason</th><th></th></tr></thead>
       <tbody>
-        ${rows.map(r => `
+        ${rows.map((r, i) => `
           <tr>
             <td>${r.ticker}</td>
             <td>$${Number(r.entryPrice).toFixed(2)}</td>
@@ -100,11 +133,62 @@ function renderPositions() {
             <td class="${r.pnlPct >= 0 ? 'up' : 'down'}">${r.pnlPct >= 0 ? '+' : ''}${r.pnlPct.toFixed(2)}%</td>
             <td><span class="badge ${r.action.toLowerCase()}">${r.action}</span></td>
             <td>${r.reason}</td>
+            <td><button class="btn-delete" data-del="${i}">Delete</button></td>
           </tr>
         `).join('')}
       </tbody>
     </table>
   `;
+
+  document.querySelectorAll('[data-del]').forEach(btn => {
+    btn.addEventListener('click', () => deletePosition(Number(btn.dataset.del)));
+  });
+}
+
+async function loadCongressTrades(symbol = currentSymbol) {
+  const key = localStorage.getItem('qp_quiver_key') || document.getElementById('apiKey').value.trim();
+  if (!key) {
+    tradesTable.innerHTML = '<p class="muted">Add API key above to load live congress trades.</p>';
+    return;
+  }
+
+  tradesMeta.textContent = `Loading recent congress trades for ${symbol}...`;
+  try {
+    const res = await fetch(`https://api.quiverquant.com/beta/live/congresstrading?ticker=${encodeURIComponent(symbol)}`, {
+      headers: { 'accept': 'application/json', 'Authorization': `Bearer ${key}` }
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const items = Array.isArray(data) ? data.slice(0, 25) : [];
+
+    if (!items.length) {
+      tradesTable.innerHTML = '<p class="muted">No recent trade rows for this ticker.</p>';
+      tradesMeta.textContent = `No recent records for ${symbol}.`;
+      return;
+    }
+
+    tradesMeta.textContent = `Showing ${items.length} recent records for ${symbol}.`;
+    tradesTable.innerHTML = `
+      <table class="table">
+        <thead><tr><th>Date</th><th>Name</th><th>Ticker</th><th>Action</th><th>Range</th><th>Party</th></tr></thead>
+        <tbody>
+          ${items.map(r => `
+            <tr>
+              <td>${r.TransactionDate || r.ReportDate || '-'}</td>
+              <td>${r.Representative || '-'}</td>
+              <td>${r.Ticker || '-'}</td>
+              <td>${r.Transaction || '-'}</td>
+              <td>${r.Range || '-'}</td>
+              <td>${r.Party || '-'}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  } catch (e) {
+    tradesMeta.textContent = `Couldn’t load live trades (${e.message}).`;
+    tradesTable.innerHTML = '<p class="muted">Live fetch failed. Check API key and CORS/auth policy.</p>';
+  }
 }
 
 document.getElementById('addPositionBtn').addEventListener('click', () => {
@@ -121,8 +205,20 @@ document.getElementById('addPositionBtn').addEventListener('click', () => {
   renderPositions();
 });
 
+document.getElementById('exportCsvBtn').addEventListener('click', exportCsv);
+document.getElementById('refreshTradesBtn').addEventListener('click', () => loadCongressTrades(currentSymbol));
+document.getElementById('saveKey').addEventListener('click', () => {
+  const k = document.getElementById('apiKey').value.trim();
+  if (!k) return;
+  localStorage.setItem('qp_quiver_key', k);
+  loadCongressTrades(currentSymbol);
+});
+
 analyzeBtn.addEventListener('click', () => {
   const symbol = (symbolInput.value || 'AAPL').toUpperCase();
+  currentSymbol = symbol;
+  signalTitle.textContent = `Signal — ${symbol}`;
+
   const lookback = Number(document.getElementById('lookback').value);
   const base = 80 + Math.random() * 120;
   series = generateSeries(lookback * 3, base);
@@ -144,6 +240,7 @@ analyzeBtn.addEventListener('click', () => {
 
   setSignal(score);
   renderPositions();
+  loadCongressTrades(symbol);
 });
 
 analyzeBtn.click();
