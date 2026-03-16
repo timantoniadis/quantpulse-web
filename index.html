@@ -15,25 +15,21 @@
 <body>
   <div class="bg-glow"></div>
   <header class="topbar">
-    <div class="brand">
-      <span class="dot"></span>
-      <h1>QuantPulse</h1>
-    </div>
-    <div class="actions">
-      <button id="themeToggle" class="btn ghost">Theme</button>
-      <button class="btn primary">Log in</button>
-    </div>
+    <div class="brand"><span class="dot"></span><h1>QuantPulse</h1></div>
+    <div class="actions"><button class="btn primary">Log in</button></div>
   </header>
 
   <main class="container">
+    <section id="alertBanner" class="alert hidden"></section>
+
     <section class="hero card">
       <div>
         <h2>AI Signal Dashboard</h2>
-        <p>Connect Quiver API, score symbols, and get clear suggestions: <strong>Buy / Hold / Avoid</strong>.</p>
+        <p>Clear decisions: <strong>Buy / Hold / Avoid</strong> plus sell alerts for your open positions.</p>
       </div>
       <div class="api-box">
         <label>Quiver API Key</label>
-        <input id="apiKey" type="password" placeholder="Paste API key tomorrow" />
+        <input id="apiKey" type="password" placeholder="Stored locally for now" />
         <button class="btn primary" id="saveKey">Save Key</button>
       </div>
     </section>
@@ -53,10 +49,7 @@
       <article class="card">
         <h3>Quick Backtest</h3>
         <p>If you purchased <strong id="ticker">NVDA</strong> 7 days ago:</p>
-        <div class="return-row">
-          <span>Return</span>
-          <strong id="returnValue" class="up">+6.42%</strong>
-        </div>
+        <div class="return-row"><span>Return</span><strong id="returnValue" class="up">+6.42%</strong></div>
         <p class="muted" id="backtestCopy">$1,000 → $1,064.20</p>
       </article>
 
@@ -75,11 +68,22 @@
     </section>
 
     <section class="card chart-wrap">
-      <div class="chart-head">
-        <h3>Price + Signal Overlay</h3>
-        <span class="muted">Interactive zoom/hover ready</span>
-      </div>
+      <div class="chart-head"><h3>Price + Signal Overlay</h3><span class="muted">Interactive hover</span></div>
       <canvas id="priceChart" height="100"></canvas>
+    </section>
+
+    <section class="card positions">
+      <div class="positions-head">
+        <h3>My Positions (Sell Alerts)</h3>
+        <p class="muted">Enter what you bought. App flags Hold / Trim / Sell.</p>
+      </div>
+      <div class="position-form">
+        <input id="posTicker" type="text" placeholder="Ticker (e.g. NVDA)" />
+        <input id="posEntryPrice" type="number" step="0.01" placeholder="Entry price" />
+        <input id="posQty" type="number" step="1" placeholder="Qty (optional)" />
+        <button id="addPositionBtn" class="btn primary">Add Position</button>
+      </div>
+      <div id="positionsTable"></div>
     </section>
   </main>
 

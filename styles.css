@@ -1,4 +1,4 @@
-:root{--bg:#070b14;--card:#101827;--text:#e8edf6;--muted:#9db0cd;--line:#1d2b45;--accent:#5eead4;--green:#22c55e;--red:#ef4444}
+:root{--bg:#070b14;--card:#101827;--text:#e8edf6;--muted:#9db0cd;--line:#1d2b45;--accent:#5eead4;--green:#22c55e;--red:#ef4444;--amber:#f59e0b}
 *{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui;background:radial-gradient(circle at 80% -10%,#1a2a47,transparent 40%),var(--bg);color:var(--text)}
 .bg-glow{position:fixed;inset:auto -200px -200px auto;width:500px;height:500px;background:#0ea5e933;border-radius:50%;filter:blur(50px);pointer-events:none}
 .topbar{display:flex;justify-content:space-between;align-items:center;padding:18px 28px;border-bottom:1px solid var(--line);backdrop-filter:blur(8px);position:sticky;top:0;background:#070b14cc;z-index:10}
@@ -7,11 +7,15 @@
 .card{background:linear-gradient(180deg,#111c2d,#0d1523);border:1px solid var(--line);border-radius:16px;padding:18px}
 .hero{display:flex;justify-content:space-between;gap:20px;align-items:flex-start}
 .hero h2{margin:0 0 8px 0}.hero p{margin:0;color:var(--muted);max-width:700px}
-.api-box{min-width:320px;display:grid;gap:8px}.api-box input,.controls input,.controls select{width:100%;padding:10px 12px;border-radius:10px;background:#07101d;border:1px solid #223350;color:var(--text)}
-.btn{padding:10px 14px;border-radius:10px;border:1px solid #33517b;background:#13233a;color:var(--text);cursor:pointer}.btn.primary{background:linear-gradient(90deg,#2563eb,#0ea5e9);border:none}.btn.ghost{background:transparent}
-.grid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:16px}.signal-card .pill{display:inline-block;padding:6px 12px;border-radius:999px;font-weight:700;letter-spacing:.4px;margin:6px 0 10px}.pill.buy{background:#052e1a;color:#4ade80;border:1px solid #14532d}.pill.hold{background:#3a3007;color:#fcd34d;border:1px solid #854d0e}.pill.avoid{background:#3b0d0d;color:#fca5a5;border:1px solid #7f1d1d}
+.api-box{min-width:320px;display:grid;gap:8px}
+.api-box input,.controls input,.controls select,.position-form input{width:100%;padding:10px 12px;border-radius:10px;background:#07101d;border:1px solid #223350;color:var(--text)}
+.btn{padding:10px 14px;border-radius:10px;border:1px solid #33517b;background:#13233a;color:var(--text);cursor:pointer}.btn.primary{background:linear-gradient(90deg,#2563eb,#0ea5e9);border:none}
+.grid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:16px}
+.signal-card .pill{display:inline-block;padding:6px 12px;border-radius:999px;font-weight:700;letter-spacing:.4px;margin:6px 0 10px}.pill.buy{background:#052e1a;color:#4ade80;border:1px solid #14532d}.pill.hold{background:#3a3007;color:#fcd34d;border:1px solid #854d0e}.pill.avoid{background:#3b0d0d;color:#fca5a5;border:1px solid #7f1d1d}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.stats span{display:block;color:var(--muted);font-size:.8rem}.stats strong{font-size:1rem}
 .return-row{display:flex;justify-content:space-between;align-items:center;font-size:1.2rem;margin-top:8px}.up{color:var(--green)}.down{color:var(--red)}.muted{color:var(--muted);font-size:.9rem}
-.controls{display:grid;gap:8px}.controls h3{margin-bottom:4px}
-.chart-wrap canvas{width:100%}
-@media (max-width:950px){.hero{flex-direction:column}.api-box{min-width:unset}.grid{grid-template-columns:1fr}}
+.controls{display:grid;gap:8px}.chart-wrap canvas{width:100%}
+.alert{padding:12px 14px;border-radius:12px;border:1px solid #7f1d1d;background:#3b0d0d;color:#fecaca;font-weight:600}.hidden{display:none}
+.positions-head h3{margin:0 0 6px}.position-form{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;margin:10px 0 14px}
+.table{width:100%;border-collapse:collapse}.table th,.table td{padding:10px;border-bottom:1px solid #1d2b45;text-align:left;font-size:.92rem}.badge{padding:4px 8px;border-radius:999px;font-weight:700;font-size:.78rem}.badge.hold{background:#3a3007;color:#fcd34d}.badge.trim{background:#3c2a06;color:#fdba74}.badge.sell{background:#3b0d0d;color:#fca5a5}
+@media (max-width:950px){.hero{flex-direction:column}.api-box{min-width:unset}.grid{grid-template-columns:1fr}.position-form{grid-template-columns:1fr}}
