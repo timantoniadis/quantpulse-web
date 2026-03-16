@@ -214,12 +214,14 @@ document.getElementById('exportCsvBtn').addEventListener('click', exportCsv);
 document.getElementById('refreshTradesBtn').addEventListener('click', () => loadCongressTrades(currentSymbol));
 document.getElementById('saveKey').addEventListener('click', () => {
   const k = document.getElementById('apiKey').value.trim();
-  if (!k) {
-    apiStatus.textContent = 'No key entered.';
+  const p = proxyUrlInput.value.trim().replace(/\/$/, '');
+  if (!k || !p) {
+    apiStatus.textContent = 'Need both API key and Proxy URL.';
     return;
   }
   localStorage.setItem('qp_quiver_key', k);
-  apiStatus.textContent = 'API key saved locally in this browser.';
+  localStorage.setItem('qp_proxy_url', p);
+  apiStatus.textContent = 'API key + proxy saved locally in this browser.';
   loadCongressTrades(currentSymbol);
 });
 
@@ -265,9 +267,11 @@ analyzeBtn.addEventListener('click', () => {
 
 // initial UI state
 const savedKey = localStorage.getItem('qp_quiver_key') || '';
-if (savedKey) {
-  document.getElementById('apiKey').value = savedKey;
-  apiStatus.textContent = 'API key loaded from local storage.';
+const savedProxy = localStorage.getItem('qp_proxy_url') || '';
+if (savedKey) document.getElementById('apiKey').value = savedKey;
+if (savedProxy) proxyUrlInput.value = savedProxy;
+if (savedKey || savedProxy) {
+  apiStatus.textContent = 'Saved settings loaded from local storage.';
 }
 if (localStorage.getItem('qp_logged_in') === '1') {
   loginBtn.textContent = 'Logged in';
