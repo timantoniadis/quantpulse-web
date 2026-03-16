@@ -14,6 +14,8 @@ const alertBanner = document.getElementById('alertBanner');
 const positionsTable = document.getElementById('positionsTable');
 const tradesTable = document.getElementById('tradesTable');
 const tradesMeta = document.getElementById('tradesMeta');
+const apiStatus = document.getElementById('apiStatus');
+const loginBtn = document.getElementById('loginBtn');
 
 const WATCHLIST = ['AAPL','MSFT','NVDA','TSLA','AMZN','META','GOOGL'];
 
@@ -186,8 +188,11 @@ async function loadCongressTrades(symbol = currentSymbol) {
       </table>
     `;
   } catch (e) {
+    const isCors = String(e.message || '').toLowerCase().includes('failed to fetch');
     tradesMeta.textContent = `Couldn’t load live trades (${e.message}).`;
-    tradesTable.innerHTML = '<p class="muted">Live fetch failed. Check API key and CORS/auth policy.</p>';
+    tradesTable.innerHTML = isCors
+      ? '<p class="muted">Blocked by browser CORS policy. Next fix: move Quiver call behind backend proxy (VPS/Cloudflare Worker) so browser does not call Quiver directly.</p>'
+      : '<p class="muted">Live fetch failed. Check API key/auth format.</p>';
   }
 }
 
@@ -209,9 +214,24 @@ document.getElementById('exportCsvBtn').addEventListener('click', exportCsv);
 document.getElementById('refreshTradesBtn').addEventListener('click', () => loadCongressTrades(currentSymbol));
 document.getElementById('saveKey').addEventListener('click', () => {
   const k = document.getElementById('apiKey').value.trim();
-  if (!k) return;
+  if (!k) {
+    apiStatus.textContent = 'No key entered.';
+    return;
+  }
   localStorage.setItem('qp_quiver_key', k);
+  apiStatus.textContent = 'API key saved locally in this browser.';
   loadCongressTrades(currentSymbol);
+});
+
+loginBtn.addEventListener('click', () => {
+  const logged = localStorage.getItem('qp_logged_in') === '1';
+  if (logged) {
+    localStorage.setItem('qp_logged_in', '0');
+    loginBtn.textContent = 'Log in';
+  } else {
+    localStorage.setItem('qp_logged_in', '1');
+    loginBtn.textContent = 'Logged in';
+  }
 });
 
 analyzeBtn.addEventListener('click', () => {
@@ -242,6 +262,16 @@ analyzeBtn.addEventListener('click', () => {
   renderPositions();
   loadCongressTrades(symbol);
 });
+
+// initial UI state
+const savedKey = localStorage.getItem('qp_quiver_key') || '';
+if (savedKey) {
+  document.getElementById('apiKey').value = savedKey;
+  apiStatus.textContent = 'API key loaded from local storage.';
+}
+if (localStorage.getItem('qp_logged_in') === '1') {
+  loginBtn.textContent = 'Logged in';
+}
 
 analyzeBtn.click();
 renderPositions();

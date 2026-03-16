@@ -16,7 +16,7 @@
   <div class="bg-glow"></div>
   <header class="topbar">
     <div class="brand"><span class="dot"></span><h1>QuantPulse</h1></div>
-    <div class="actions"><button class="btn primary">Log in</button></div>
+    <div class="actions"><button id="loginBtn" class="btn primary">Log in</button></div>
   </header>
 
   <main class="container">
@@ -31,6 +31,7 @@
         <label>Quiver API Key (browser local storage)</label>
         <input id="apiKey" type="password" placeholder="Paste key for live congress data" />
         <button class="btn primary" id="saveKey">Save Key</button>
+        <p id="apiStatus" class="muted">No key saved yet.</p>
       </div>
     </section>
 
